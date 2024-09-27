@@ -1,0 +1,4 @@
+FileName                    |DataSheet.csv
+Cell Seperation character   |;
+Float Decimal character     |,
+Table format split character|,

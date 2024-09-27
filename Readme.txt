@@ -6,13 +6,18 @@ program needs latest install of java 8.
 
 supported types are int, float, bool, string and color.
 
+To set up your conversion make sure "Settings.txt" is correct
+Settings has a few settings.
+file name is the file the program will scan for in the same folder
+cell seperation character is the character used  in your data to seperate cells
+float decimal character is the character used for floating point numbers (, or .)
+Table format split character is the character you've used to define your data table format. this value can not be the same as the cell seperation character.
+
 open example xlsx file to see how to format your sheet.
 
 To convert, follow examplesheet format, save your file as "CSV UTF-8(comma delimited)" type.
 
 The file name should be "DataSheet.csv". 
-
-You can change the filename the tool scans for by editing the "Filename.txt" file.
 
 save csv file in same location as "ConvertTool.exe" and run the tool.
 

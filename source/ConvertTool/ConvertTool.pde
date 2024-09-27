@@ -1,16 +1,20 @@
 void setup()
 {
-  String filename = loadStrings("Filename.txt")[0];
+  String[] settings = loadStrings("Settings.txt");
+  String filename = split(settings[0],'|')[1];
+  String sepChar = split(settings[1],'|')[1];
+  String decChar = split(settings[2],'|')[1];
+  String formatSplitChar = split(settings[3],'|')[1];
   //load csv data line by line
   String[] fullLines = loadStrings(filename);
   //get a single line and split it to check how many cells there is on x axis
-  String[] calcLine = split(fullLines[0], ';');
+  String[] calcLine = split(fullLines[0], sepChar);
 
   //store each csv cell in 2d array
   String[][] cells = new String[fullLines.length][calcLine.length];
   for (int i = 0; i < fullLines.length; i++)
   {
-    String[] splitLine = split(fullLines[i], ';');
+    String[] splitLine = split(fullLines[i], sepChar);
     for (int j = 0; j < splitLine.length; j++)
     {
       cells[i][j] = splitLine[j];
@@ -37,8 +41,8 @@ void setup()
     ConvertedData = concat(ConvertedData, new String[]{"", cells[0][TableYStartPositions[j]]});
 
     //save table format and add them to array
-    String[] TableFormatOriginal = split(cells[1][TableYStartPositions[j]], ',');
-    String[] TableFormat = split(cells[1][TableYStartPositions[j]], ',');
+    String[] TableFormatOriginal = split(cells[1][TableYStartPositions[j]], formatSplitChar);
+    String[] TableFormat = split(cells[1][TableYStartPositions[j]], formatSplitChar);
     for (int k = 0; k < TableFormat.length; k++)
     {
       TableFormatOriginal[k] = TableFormatOriginal[k].toLowerCase();
@@ -64,7 +68,6 @@ void setup()
           currentramt++;
         }
       }
-      print(currentramt);
       if (currentramt > rowAmount) {
         rowAmount = currentramt;
       }
@@ -86,22 +89,51 @@ void setup()
         //check if cell is empty for autofill
         if (!cellvalue.equals(""))
         {
-          //format color
-          if (TableFormatOriginal[l] == "Color")
+          if(TableFormatOriginal[l].equals("float"))
           {
-            if (cellvalue.substring(0, 1) == "#")
+            if(cellvalue.indexOf("/") > 0)
+            {
+              float a = float(split(cellvalue,'/')[0]);
+              float b = float(split(cellvalue,'/')[1]);
+              cellvalue = str(a/b);
+            }
+            if(cellvalue.indexOf("%") > 0)
+            {
+              if(cellvalue.indexOf(".") > 0)
+              {
+                String nstr = split(cellvalue,"%")[0];
+                cellvalue = str(1.0/100.0*float(nstr));
+              }
+              else if(cellvalue.indexOf(",") > 0)
+              {
+                String nstr = split(cellvalue,"%")[0];
+                nstr = nstr.replace(",",".");
+                print(nstr);
+                cellvalue = str(1.0/100.0*float(nstr));
+              }
+              else
+              {
+                float a = float(cellvalue);
+                cellvalue = str(1.0/100.0*a);
+              }
+            }
+          }
+          //format color
+          if (TableFormatOriginal[l].equals("Color"))
+          {
+            if (cellvalue.substring(0, 1).equals("#"))
             {
               cellvalue =  split(cellvalue, '#')[1];
             }
           }
           //format bool
-          if (TableFormatOriginal[l] == "bool")
+          if (TableFormatOriginal[l].equals("bool"))
           {
             cellvalue.toUpperCase();
-            if (cellvalue == "0") {
+            if (cellvalue.equals("0")) {
               cellvalue = "FALSE";
             } 
-            if (cellvalue == "1") {
+            if (cellvalue.equals("1")) {
               cellvalue = "TRUE";
             }
           }
@@ -114,7 +146,7 @@ void setup()
             cellvalue = "0"; 
             break;
           case "float" : 
-            cellvalue = "0,0"; 
+            cellvalue = "0.0"; 
             break;
           case "string": 
             cellvalue = "null"; 
@@ -133,12 +165,12 @@ void setup()
         currentRows[k] += cellvalue;
         if (l < TableFormat.length-1)
         {
-          currentRows[k] += "-";
+          currentRows[k] += "}";
         }
       }
       //convert csv characters to rec room characters
-      currentRows[k] = currentRows[k].replace(',', '.');
-      currentRows[k] = currentRows[k].replace('-', ',');
+      currentRows[k] = currentRows[k].replace(decChar.charAt(0), '.');
+      currentRows[k] = currentRows[k].replace('}', ',');
     }
     //add rows to converted data
     ConvertedData = concat(ConvertedData, currentRows);
